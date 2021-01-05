@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<style>
+			.content {
+				display: flex;
+				flex-wrap: wrap;
+			}
+			.operation-indicator {
+				padding: .5rem;
+				margin: .5rem;
+				border: 1px solid #898989;
+				font-size: 0.5rem;
+				min-width: 33%;
+				flex: 1;
+			}
+			.operation-indicator.active {
+				background-color: green;
+				color: white;
+			}
+		</style>
+	</head>
+	<body>
+		<template id="operation-indicator"><div class="operation-indicator">
+				<span class="operation-indicator__result">Loading...</span>
+			</div></template>
+		<div class="content">
+
+		</div>
+		<script>
+			function fetchResults(i) {
+				return fetch(`http://localhost:3000/api/${i}`).then(r => r.text());
+			}
+			const counters = new Array(100).fill(0);
+			const template = document.getElementById('operation-indicator');
+			counters.forEach((counter, i) => {
+				let clonedTemplate = template.content.cloneNode(true);
+				clonedTemplate.firstChild.id = `operation-${i}`;
+				clonedTemplate.querySelector('.operation-indicator__result').textContent = `IDLE`;
+				document.querySelector('.content').appendChild(clonedTemplate);
+			});
+			counters.forEach((_, i) => {
+				const t = document.querySelector(`#operation-${i}`);
+				t.querySelector('.operation-indicator__result').textContent = `Fetching...${i}`;
+			});
+			counters.forEach((_, i) => {
+				fetchResults(i).then((text) => {
+					const t = document.querySelector(`#operation-${i}`);
+					t.classList.toggle('active');
+					t.querySelector('.operation-indicator__result').textContent = text;
+				});
+			});
+		</script>
+	</body>
+</html>
